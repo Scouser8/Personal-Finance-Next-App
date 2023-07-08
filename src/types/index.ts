@@ -1,6 +1,14 @@
+export type LoginCredentials = {
+  email: string;
+  password: string;
+};
+
 export type User = {
-  firstName: String;
-  lastName: String;
-  token: String;
-  email: String;
+  _id: string;
+  firstName: string;
+  lastName: string;
+  token: string;
+  email: string;
+  createdAt: string;
+  updatedAt: string;
 };

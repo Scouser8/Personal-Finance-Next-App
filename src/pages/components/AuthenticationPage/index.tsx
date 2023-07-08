@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { useToggle, upperFirst } from "@mantine/hooks";
-import { useForm } from "@mantine/form";
+import { isEmail, isNotEmpty, useForm } from "@mantine/form";
 import {
   TextInput,
   PasswordInput,
@@ -12,52 +13,91 @@ import {
   Anchor,
   Stack,
 } from "@mantine/core";
+import axios from "../../../axios";
+import { LoginCredentials } from "@/types";
+import { LOGIN_FORM, REGISTRATION_FORM } from "@/constants";
+import { useStateValue } from "@/store/StateProvider";
+import { setUser } from "@/actions";
 
 export default function AuthenticationForm(props: PaperProps) {
-  const [type, toggle] = useToggle(["login", "register"]);
-  const form = useForm({
+  const [, dispatch] = useStateValue();
+  const [formType, toggleForms] = useToggle([LOGIN_FORM, REGISTRATION_FORM]);
+  const { getInputProps, onSubmit } = useForm({
     initialValues: {
       email: "",
-      name: "",
       password: "",
+      ...(formType === REGISTRATION_FORM && { firstName: "", lastName: "" }),
     },
 
     validate: {
-      email: (val) => (/^\S+@\S+$/.test(val) ? null : "Invalid email"),
-      password: (val) =>
-        val.length <= 6
+      email: isEmail("Invalid email"),
+      password: (val: any) =>
+        val?.length <= 6
           ? "Password should include at least 6 characters"
           : null,
+      ...(formType === REGISTRATION_FORM && {
+        firstName: isNotEmpty("Please enter first name"),
+        lastName: isNotEmpty("Please enter last name"),
+      }),
     },
   });
+
+  const [feedbackMessage, setFeedbackMessage] = useState<string | undefined>();
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const switchBetweenForms = (message?: string) => {
+    toggleForms();
+    setFeedbackMessage(message);
+    setErrorMessage("");
+  };
+
+  const handleRegistration = (values: LoginCredentials) => {
+    axios
+      .post(`user/register`, values)
+      .then(({ data }) => {
+        switchBetweenForms(data);
+      })
+      .catch(({ response }) => setErrorMessage(response.data));
+  };
+
+  const handleLogin = (values: LoginCredentials) => {
+    axios
+      .post(`user/login`, values)
+      .then(({ data }) => {
+        const { data: userInfo, token } = data;
+        dispatch(setUser({ ...userInfo, token }));
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      })
+      .catch(({ response }) => setErrorMessage(response.data));
+  };
 
   return (
     <Paper radius="md" p="xl" withBorder {...props}>
       <Text size="lg" weight={500}>
-        Welcome to Femto, {type} with
+        Welcome to Femto, {formType} with
       </Text>
 
-      <form onSubmit={form.onSubmit(() => {})}>
+      <form
+        onSubmit={onSubmit(
+          formType === REGISTRATION_FORM ? handleRegistration : handleLogin
+        )}
+      >
         <Stack>
-          {type === "register" && (
+          {formType === REGISTRATION_FORM && (
             <SimpleGrid cols={2} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
               <TextInput
                 label="First Name"
                 placeholder="Enter Your first name"
-                value={form.values.name}
-                onChange={(event) =>
-                  form.setFieldValue("name", event.currentTarget.value)
-                }
                 radius="md"
+                name="firstName"
+                {...getInputProps("firstName")}
               />
               <TextInput
                 label="Last Name"
-                placeholder="Your name"
-                value={form.values.name}
-                onChange={(event) =>
-                  form.setFieldValue("name", event.currentTarget.value)
-                }
+                placeholder="Your last name"
                 radius="md"
+                name="lastName"
+                {...getInputProps("lastName")}
               />
             </SimpleGrid>
           )}
@@ -66,27 +106,18 @@ export default function AuthenticationForm(props: PaperProps) {
             required
             label="Email"
             placeholder="hello@mantine.dev"
-            value={form.values.email}
-            onChange={(event) =>
-              form.setFieldValue("email", event.currentTarget.value)
-            }
-            error={form.errors.email && "Invalid email"}
             radius="md"
+            name="email"
+            {...getInputProps("email")}
           />
 
           <PasswordInput
             required
             label="Password"
             placeholder="Your password"
-            value={form.values.password}
-            onChange={(event) =>
-              form.setFieldValue("password", event.currentTarget.value)
-            }
-            error={
-              form.errors.password &&
-              "Password should include at least 6 characters"
-            }
             radius="md"
+            name="password"
+            {...getInputProps("password")}
           />
         </Stack>
 
@@ -95,15 +126,24 @@ export default function AuthenticationForm(props: PaperProps) {
             component="button"
             type="button"
             color="dimmed"
-            onClick={() => toggle()}
+            onClick={() => switchBetweenForms()}
             size="xs"
           >
-            {type === "register"
+            {formType === "register"
               ? "Already have an account? Login"
               : "Don't have an account? Register"}
           </Anchor>
+          {(feedbackMessage || errorMessage) && (
+            <Text
+              color={feedbackMessage ? "green" : "red"}
+              size="sm"
+              weight={500}
+            >
+              {feedbackMessage || errorMessage}
+            </Text>
+          )}
           <Button type="submit" radius="xl">
-            {upperFirst(type)}
+            {upperFirst(formType)}
           </Button>
         </Group>
       </form>
