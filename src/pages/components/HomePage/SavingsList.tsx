@@ -69,7 +69,7 @@ function SavingsList() {
 
   return (
     <ScrollArea
-      h={350}
+      h={240}
       onScrollPositionChange={({ y }) => setScrolled(y !== 0)}
     >
       <Table miw={700}>
