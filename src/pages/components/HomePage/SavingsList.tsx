@@ -75,8 +75,8 @@ function SavingsList() {
       <Table miw={700}>
         <thead className={cx(classes.header, { [classes.scrolled]: scrolled })}>
           <tr>
-            {columns.map((columnName) => (
-              <th>{columnName}</th>
+            {columns.map((columnName, index) => (
+              <th key={`column-${index}`}>{columnName}</th>
             ))}
           </tr>
         </thead>
