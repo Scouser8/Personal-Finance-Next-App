@@ -3,7 +3,7 @@ import { isNotEmpty, useForm } from "@mantine/form";
 import { createStyles, rem, Group, TextInput, Button } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
 import dayjs from "dayjs";
-import axios from "../../../axios";
+import axios from "../../axios";
 import { useStateValue } from "@/store/StateProvider";
 import { updateSavingGoalsList } from "@/actions";
 import { getRemainingPeriodInMonths } from "./utils";

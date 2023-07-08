@@ -14,7 +14,7 @@ import {
   Stack,
   createStyles,
 } from "@mantine/core";
-import axios from "../../../axios";
+import axios from "../../axios";
 import { LoginCredentials } from "@/types";
 import { LOGIN_FORM, REGISTRATION_FORM } from "@/constants";
 import { useStateValue } from "@/store/StateProvider";

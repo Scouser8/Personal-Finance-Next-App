@@ -4,7 +4,7 @@ import { useStateValue } from "@/store/StateProvider";
 import { updateSavingGoalsList } from "@/actions";
 import { SavingGoal } from "@/types";
 import dayjs from "dayjs";
-import axios from "../../../axios";
+import axios from "../../axios";
 
 const useStyles = createStyles((theme) => ({
   header: {
@@ -69,7 +69,7 @@ function SavingsList() {
 
   return (
     <ScrollArea
-      h={240}
+      h={310}
       onScrollPositionChange={({ y }) => setScrolled(y !== 0)}
     >
       <Table miw={700}>

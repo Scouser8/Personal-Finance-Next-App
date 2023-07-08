@@ -1,5 +1,5 @@
-import Home from "./components/HomePage";
-import UserAuthentication from "./components/AuthenticationPage";
+import Home from "../components/HomePage";
+import UserAuthentication from "../components/AuthenticationPage";
 import { useStateValue } from "@/store/StateProvider";
 
 export default function Page() {
