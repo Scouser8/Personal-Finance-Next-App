@@ -5,7 +5,7 @@ export const getRemainingPeriodInMonths = (endDate: Date) => {
   const currentDateMonth = dayjs().month() + 1;
   const endDateMonth = dayjs(endDate).month() + 1;
   const monthsEachYear = 12;
-  const remainingMonthsOfCurrentYear = endDateMonth - currentDateMonth;
+  const remainingMonthsOfCurrentYear = monthsEachYear - currentDateMonth;
   const yearsDifference = dayjs(endDate).year() - dayjs().year();
 
   // Years that will have all 12 months available.
@@ -22,8 +22,7 @@ export const getRemainingPeriodInMonths = (endDate: Date) => {
       monthsEachYear * completeYearsAfterCurrentYear +
       endDateMonth;
   } else {
-    totalRemainingMonths = remainingMonthsOfCurrentYear;
+    totalRemainingMonths = endDateMonth - currentDateMonth;
   }
-  console.log("Months Remaining", totalRemainingMonths);
   return totalRemainingMonths;
 };

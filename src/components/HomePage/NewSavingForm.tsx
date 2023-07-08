@@ -28,10 +28,11 @@ type SavingGoalValues = {
 function NewSavingForm() {
   const { classes } = useStyles();
   const [{ user }, dispatch] = useStateValue();
+  const beginningOfNextMonth = dayjs().endOf("month").add(1, "day").toDate();
   const { values, getInputProps, onSubmit, reset } = useForm({
     initialValues: {
       totalSavingAmount: 0,
-      dateToReachGoal: dayjs(new Date()).add(1, "month").toDate(),
+      dateToReachGoal: beginningOfNextMonth,
     },
     validate: {
       totalSavingAmount: (value) =>
@@ -88,7 +89,7 @@ function NewSavingForm() {
           clearable={true}
           name="dateToReachGoal"
           placeholder="Pick an end date"
-          minDate={new Date()}
+          minDate={beginningOfNextMonth}
           {...getInputProps("dateToReachGoal")}
         />
         <TextInput
