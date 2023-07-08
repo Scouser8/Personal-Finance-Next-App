@@ -1,16 +1,10 @@
 import React from "react";
 import { useForm } from "@mantine/form";
-import {
-  createStyles,
-  SimpleGrid,
-  Group,
-  TextInput,
-  Button,
-} from "@mantine/core";
+import { createStyles, rem, Group, TextInput, Button } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
 
 const useStyles = createStyles((theme) => ({
-  root: {},
+  root: { marginTop: rem(16) },
 
   input: {
     // height: rem(54),
