@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { isNotEmpty, useForm } from "@mantine/form";
 import { createStyles, rem, Group, TextInput, Button } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
@@ -6,6 +6,7 @@ import dayjs from "dayjs";
 import axios from "../../../axios";
 import { useStateValue } from "@/store/StateProvider";
 import { updateSavingGoalsList } from "@/actions";
+import { getRemainingPeriodInMonths } from "./utils";
 
 const useStyles = createStyles((theme) => ({
   root: { marginTop: rem(16) },
@@ -40,25 +41,31 @@ function NewSavingForm() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const periodRemainingInMonths = getRemainingPeriodInMonths(
+    values.dateToReachGoal
+  );
+
+  const monthlyAmount =
+    values?.totalSavingAmount /
+    (periodRemainingInMonths > 0 ? periodRemainingInMonths : 1);
+
   const handleSubmit = (values: SavingGoalValues) => {
     setIsSubmitting(true);
-    console.log("Vals", values);
-    console.log("User", user);
     axios
-      .post("savings/add", { params: { ...values, userId: user._id } })
+      .post("savings/add", {
+        params: { ...values, monthlyAmount, userId: user._id },
+      })
       .then(() =>
         axios("savings", { params: { userId: user._id } })
-          .then(({ data }) => {
-            console.log("New List:", data);
-            // dispatch(updateSavingGoalsList(data.data));
+          .then((data) => {
+            const { data: newSavingsList } = data;
+            dispatch(updateSavingGoalsList(newSavingsList));
           })
           .finally(() => {
             reset();
             setIsSubmitting(false);
           })
       );
-    // reset();
-    // setIsSubmitting(false);
   };
 
   return (
@@ -90,7 +97,7 @@ function NewSavingForm() {
           mt="md"
           label="Monthly amount"
           readOnly
-          value={values?.totalSavingAmount && values?.totalSavingAmount / 2}
+          value={monthlyAmount}
         />
       </Group>
 

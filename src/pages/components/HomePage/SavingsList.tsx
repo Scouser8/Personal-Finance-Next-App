@@ -1,5 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createStyles, Table, ScrollArea, rem } from "@mantine/core";
+import { useStateValue } from "@/store/StateProvider";
+import { updateSavingGoalsList } from "@/actions";
+import { SavingGoal } from "@/types";
+import dayjs from "dayjs";
+import axios from "../../../axios";
 
 const useStyles = createStyles((theme) => ({
   header: {
@@ -28,31 +33,45 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-const data = [
-  {
-    id: 1,
-    totalAmount: 25000,
-    dateToReachGoal: "01/12/2023",
-    monthlyAmount: 5000,
-  },
+const columns = [
+  "Total Saving Amount",
+  "Creation date",
+  "End date",
+  "Monthly amount",
+  "Status",
 ];
-
-const columns = ["Total Saving Amount", "End date", "Monthly amount"];
 
 function SavingsList() {
   const { classes, cx } = useStyles();
+  const [{ user, savingGoals }, dispatch] = useStateValue();
   const [scrolled, setScrolled] = useState(false);
 
-  const rows = data.map((row) => (
-    <tr key={row.id}>
-      <td>{row.totalAmount}</td>
-      <td>{row.dateToReachGoal}</td>
-      <td>{row.monthlyAmount}</td>
+  const rows = savingGoals?.map((savingGoal: SavingGoal) => (
+    <tr key={savingGoal._id}>
+      <td>{savingGoal.totalSavingAmount}</td>
+      <td>{dayjs(savingGoal.createdAt).format("DD/MM/YYYY")}</td>
+      <td>{dayjs(savingGoal.dateToReachGoal).format("DD/MM/YYYY")}</td>
+      <td>{savingGoal.monthlyAmount}</td>
+      <td>
+        {dayjs().isBefore(dayjs(savingGoal.dateToReachGoal))
+          ? "In Progress"
+          : "Done"}
+      </td>
     </tr>
   ));
 
+  useEffect(() => {
+    axios("savings", { params: { userId: user._id } }).then((data) => {
+      const { data: newSavingsList } = data;
+      dispatch(updateSavingGoalsList(newSavingsList));
+    });
+  }, []);
+
   return (
-    <ScrollArea onScrollPositionChange={({ y }) => setScrolled(y !== 0)}>
+    <ScrollArea
+      h={350}
+      onScrollPositionChange={({ y }) => setScrolled(y !== 0)}
+    >
       <Table miw={700}>
         <thead className={cx(classes.header, { [classes.scrolled]: scrolled })}>
           <tr>

@@ -26,6 +26,7 @@ const reducer = (state: ApplicationState, action: Action) => {
     case UPDATE_SAVING_GOALS_LIST:
       return {
         ...state,
+        savingGoals: action.payload,
       };
 
     default:

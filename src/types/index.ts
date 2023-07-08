@@ -14,6 +14,11 @@ export type User = {
 };
 
 export type SavingGoal = {
+  _id: string;
   totalSavingAmount: number;
   dateToReachGoal: Date;
+  monthlyAmount: number;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
 };
