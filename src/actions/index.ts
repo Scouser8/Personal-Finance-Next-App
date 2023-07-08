@@ -1,15 +1,16 @@
-import { User } from "@/types";
+import { SavingGoal, User } from "@/types";
 
 export const SET_USER = "SET_USER";
-export const ADD_SAVING_GOAL = "ADD_SAVING_GOAL";
+export const UPDATE_SAVING_GOALS_LIST = "UPDATE_SAVING_GOALS_LIST";
 
 const setUser = (user: User) => ({
   type: SET_USER,
   payload: user,
 });
 
-const addSavingGoal = () => ({
-  type: ADD_SAVING_GOAL,
+const updateSavingGoalsList = (savingGoalsList: SavingGoal[]) => ({
+  type: UPDATE_SAVING_GOALS_LIST,
+  payload: savingGoalsList,
 });
 
-export { setUser, addSavingGoal };
+export { setUser, updateSavingGoalsList };

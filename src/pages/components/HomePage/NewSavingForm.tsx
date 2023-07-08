@@ -1,60 +1,77 @@
-import React from "react";
-import { useForm } from "@mantine/form";
+import React, { useState } from "react";
+import { isNotEmpty, useForm } from "@mantine/form";
 import { createStyles, rem, Group, TextInput, Button } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
+import dayjs from "dayjs";
+import axios from "../../../axios";
+import { useStateValue } from "@/store/StateProvider";
+import { updateSavingGoalsList } from "@/actions";
 
 const useStyles = createStyles((theme) => ({
   root: { marginTop: rem(16) },
-
-  input: {
-    // height: rem(54),
-    // paddingTop: rem(18),
-  },
-
-  label: {
-    // position: "absolute",
-    pointerEvents: "none",
-    fontSize: theme.fontSizes.xs,
-    // paddingLeft: theme.spacing.sm,
-    // paddingTop: `calc(${theme.spacing.sm} / 2)`,
-    zIndex: 1,
-  },
   addButton: {
     width: 150,
   },
   fields: {
     "& > *": {
-      width: 200,
+      width: 300,
     },
   },
 }));
 
+type SavingGoalValues = {
+  totalSavingAmount: number;
+  dateToReachGoal: Date;
+};
+
 function NewSavingForm() {
   const { classes } = useStyles();
-
-  const form = useForm({
+  const [{ user }, dispatch] = useStateValue();
+  const { values, getInputProps, onSubmit, reset } = useForm({
     initialValues: {
-      name: "",
-      email: "",
-      subject: "",
-      message: "",
+      totalSavingAmount: 0,
+      dateToReachGoal: dayjs(new Date()).add(1, "month").toDate(),
     },
     validate: {
-      name: (value) => value.trim().length < 2,
-      email: (value) => !/^\S+@\S+$/.test(value),
-      subject: (value) => value.trim().length === 0,
+      totalSavingAmount: (value) =>
+        value && value > 0 ? null : "Please enter an amount to save",
+      dateToReachGoal: isNotEmpty("Name cannot be empty"),
     },
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = (values: SavingGoalValues) => {
+    setIsSubmitting(true);
+    console.log("Vals", values);
+    console.log("User", user);
+    axios
+      .post("savings/add", { params: { ...values, userId: user._id } })
+      .then(() =>
+        axios("savings", { params: { userId: user._id } })
+          .then(({ data }) => {
+            console.log("New List:", data);
+            // dispatch(updateSavingGoalsList(data.data));
+          })
+          .finally(() => {
+            reset();
+            setIsSubmitting(false);
+          })
+      );
+    // reset();
+    // setIsSubmitting(false);
+  };
 
   return (
-    <div className={classes.root}>
+    <form className={classes.root} onSubmit={onSubmit(handleSubmit)}>
       <Group position="center" className={classes.fields}>
         <TextInput
+          type="number"
           size="md"
           mt="md"
           label="Total Amount"
-          name="email"
-          {...form.getInputProps("email")}
+          name="totalSavingAmount"
+          placeholder="Enter the total saving amount"
+          {...getInputProps("totalSavingAmount")}
         />
         <DatePickerInput
           size="md"
@@ -62,15 +79,27 @@ function NewSavingForm() {
           popoverProps={{ withinPortal: true }}
           label="Date to reach goal"
           clearable={true}
+          name="dateToReachGoal"
+          placeholder="Pick an end date"
+          minDate={new Date()}
+          {...getInputProps("dateToReachGoal")}
+        />
+        <TextInput
+          type="number"
+          size="md"
+          mt="md"
+          label="Monthly amount"
+          readOnly
+          value={values?.totalSavingAmount && values?.totalSavingAmount / 2}
         />
       </Group>
 
       <Group position="center" mt="xl">
-        <Button type="submit" size="md">
-          Add New Goal
+        <Button type="submit" size="md" disabled={isSubmitting}>
+          Add New Saving Goal
         </Button>
       </Group>
-    </div>
+    </form>
   );
 }
 

@@ -1,8 +1,9 @@
-import { SET_USER } from "@/actions";
-import { User } from "@/types";
+import { SET_USER, UPDATE_SAVING_GOALS_LIST } from "@/actions";
+import { SavingGoal, User } from "@/types";
 
 type ApplicationState = {
   user: User | null;
+  savingGoals: SavingGoal[];
 };
 type Action = {
   type: String;
@@ -11,6 +12,7 @@ type Action = {
 
 export const initialState: ApplicationState = {
   user: null,
+  savingGoals: [],
 };
 
 const reducer = (state: ApplicationState, action: Action) => {
@@ -19,6 +21,11 @@ const reducer = (state: ApplicationState, action: Action) => {
       return {
         ...state,
         user: action.payload,
+      };
+
+    case UPDATE_SAVING_GOALS_LIST:
+      return {
+        ...state,
       };
 
     default:
