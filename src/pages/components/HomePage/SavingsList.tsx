@@ -65,7 +65,7 @@ function SavingsList() {
       const { data: newSavingsList } = data;
       dispatch(updateSavingGoalsList(newSavingsList));
     });
-  }, []);
+  }, [dispatch, user._id]);
 
   return (
     <ScrollArea
